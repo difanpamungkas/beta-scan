@@ -2,7 +2,7 @@
 // @name         Auto Scanner Panel beta 2.4 by Re (APK Friendly)
 // @namespace    http://tampermonkey.net/
 // @version      2.4
-// @description  Automated barcode scanning panel without camera permission.
+// @description  Automated barcode scanning panel with auto-remove line feature.
 // @match        https://tsiraw.tsindustri.com/*
 // @grant        none
 // ==/UserScript==
@@ -17,50 +17,30 @@
         let banner = document.createElement('div');
         banner.id = 'runningTextBanner';
         banner.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+            position: fixed; top: 0; left: 0; width: 100%;
             background: rgba(9, 9, 11, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            color: #22c55e;
-            padding: 10px 0;
-            z-index: 1000000;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            color: #22c55e; padding: 10px 0; z-index: 1000000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            overflow: hidden;
-            white-space: nowrap;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-            border-bottom: 1px solid rgba(34, 197, 94, 0.5);
+            font-size: 14px; font-weight: 700; overflow: hidden; white-space: nowrap;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6); border-bottom: 1px solid rgba(34, 197, 94, 0.5);
             cursor: pointer;
         `;
 
         let content = document.createElement('div');
-        content.style.cssText = `
-            display: inline-block;
-            padding-left: 100%;
-            animation: marqueeAnim 12s linear infinite;
-        `;
+        content.style.cssText = `display: inline-block; padding-left: 100%; animation: marqueeAnim 12s linear infinite;`;
         content.innerText = '☕ wes kabeh cak,ojo lali kopine @Rey😎   |   ☕ wes kabeh cak,ojo lali kopine @Rey😎';
 
         if (!document.getElementById('marqueeStyle')) {
             let style = document.createElement('style');
             style.id = 'marqueeStyle';
-            style.innerHTML = `
-                @keyframes marqueeAnim {
-                    0% { transform: translate(0, 0); }
-                    100% { transform: translate(-100%, 0); }
-                }
-            `;
+            style.innerHTML = `@keyframes marqueeAnim { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }`;
             document.head.appendChild(style);
         }
 
         banner.appendChild(content);
         banner.onclick = () => banner.remove();
         document.body.appendChild(banner);
-
         setTimeout(() => { if (banner) banner.remove(); }, 10000);
     }
 
@@ -70,34 +50,23 @@
         let p = document.createElement('div');
         p.id = 'autoScanPanelContainer';
         p.style.cssText = `
-            position: fixed;
-            top: 70px;
-            left: 12px;
+            position: fixed; top: 70px; left: 12px;
             background: rgba(24, 24, 27, 0.94);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            color: #f4f4f5;
-            padding: 14px 16px;
-            z-index: 999999;
-            border-radius: 14px;
-            width: calc(100vw - 24px);
-            max-width: 330px;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            color: #f4f4f5; padding: 14px 16px; z-index: 999999;
+            border-radius: 14px; width: calc(100vw - 24px); max-width: 330px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 13px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            transition: width 0.2s ease, padding 0.2s ease;
+            font-size: 13px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.12); transition: width 0.2s ease, padding 0.2s ease;
         `;
 
         p.innerHTML = `
-            <div id="panelHeader" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; user-select:none; padding-bottom:4px; transition:margin 0.2s ease, border 0.2s ease;">
-                <div style="display:flex; align-items:center; gap:8px; white-space:nowrap; overflow:hidden;">
-                    <span style="width:8px; height:8px; background:#22c55e; border-radius:50%; display:inline-block; box-shadow:0 0 8px #22c55e; flex-shrink:0;"></span>
-                    <b style="color:#ffffff; font-size:13px; letter-spacing:0.3px; white-space:nowrap;">beta 2.4 <span style="font-weight:normal; font-size:11px; color:#a1a1aa;">by Re</span></b>
+            <div id="panelHeader" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; user-select:none; padding-bottom:4px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="width:8px; height:8px; background:#22c55e; border-radius:50%; display:inline-block; box-shadow:0 0 8px #22c55e;"></span>
+                    <b style="color:#ffffff; font-size:13px;">beta 2.4 <span style="font-weight:normal; font-size:11px; color:#a1a1aa;">by Re</span></b>
                 </div>
-                <div style="display:flex; gap:6px; flex-shrink:0; margin-left:8px;">
-                    <span id="minBtn" style="cursor:pointer; background:rgba(255,255,255,0.08); color:#a1a1aa; padding:2px 8px; border-radius:6px; font-weight:600; font-size:12px;" title="Minimize">_</span>
-                </div>
+                <span id="minBtn" style="cursor:pointer; background:rgba(255,255,255,0.08); color:#a1a1aa; padding:2px 8px; border-radius:6px; font-weight:600; font-size:12px;">_</span>
             </div>
 
             <div id="bodyPanel">
@@ -119,7 +88,7 @@
 
                 <div style="display:flex; gap:6px; margin-bottom:10px;">
                     <button id="clrBtn" style="flex:1; background:rgba(255,255,255,0.06); color:#d4d4d8; border:1px solid rgba(255,255,255,0.1); padding:7px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;">Clear</button>
-                    <button id="onBtn" style="flex:2; background:linear-gradient(135deg, #16a34a, #22c55e); color:#fff; border:none; padding:7px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px; box-shadow:0 2px 4px rgba(34,197,94,0.2);">START ON</button>
+                    <button id="onBtn" style="flex:2; background:linear-gradient(135deg, #16a34a, #22c55e); color:#fff; border:none; padding:7px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;">START ON</button>
                     <button id="offBtn" style="flex:1; background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); padding:7px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;">STOP</button>
                 </div>
 
@@ -149,7 +118,6 @@
             p.style.width = min ? '210px' : 'calc(100vw - 24px)';
             p.style.padding = min ? '10px 14px' : '14px 16px';
             header.style.marginBottom = min ? '0px' : '12px';
-            header.style.borderBottom = min ? 'none' : '1px solid rgba(255,255,255,0.08)';
             minBtn.innerText = min ? '+' : '_';
         };
 
@@ -159,11 +127,14 @@
         let errLst = p.querySelector('#errLst');
         let failedLog = [];
 
-        txt.oninput = function() {
+        function updateCount() {
             let val = txt.value.trim();
             let arr = val ? val.split(/\r?\n/).map(x => x.trim()).filter(x => x.length > 0) : [];
             cnt.innerText = 'Total: ' + arr.length;
-        };
+            return arr;
+        }
+
+        txt.oninput = updateCount;
 
         p.querySelector('#clrBtn').onclick = function() {
             txt.value = '';
@@ -175,17 +146,11 @@
 
         p.querySelector('#copyLogBtn').onclick = function() {
             if (failedLog.length === 0) return alert('Belum ada data gagal untuk disalin.');
-
             let logText = failedLog.join('\n');
-
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(logText).then(() => {
-                    alert('Log gagal berhasil disalin ke clipboard!');
-                }).catch(() => {
-                    prompt('Salin log berikut secara manual:', logText);
-                });
+                navigator.clipboard.writeText(logText).then(() => alert('Log gagal berhasil disalin ke clipboard!')).catch(() => prompt('Salin log manual:', logText));
             } else {
-                prompt('Salin log berikut secara manual:', logText);
+                prompt('Salin log manual:', logText);
             }
         };
 
@@ -199,26 +164,24 @@
 
         p.querySelector('#onBtn').onclick = async function() {
             if (run) return;
-            let val = txt.value.trim();
-            if (!val) return alert('Kotak teks masih kosong!');
-            let list = val.split(/\r?\n/).map(x => x.trim()).filter(x => x.length > 0);
-            if (list.length === 0) return alert('Tidak ada barcode valid!');
+            let list = updateCount();
+            if (list.length === 0) return alert('Kotak teks masih kosong!');
 
             let inputEl = document.querySelector('input[placeholder*="barcode" i]') || Array.from(document.querySelectorAll('input')).find(el => el.type !== 'date' && el.type !== 'hidden');
             if (!inputEl) return alert('Input barcode tidak ditemukan di halaman!');
 
             run = true;
             let stat = p.querySelector('#stat');
-            let fails = 0, idx = 0;
+            let fails = 0, totalAwal = list.length, processed = 0;
             let speedDelay = parseInt(document.getElementById('speedSel').value) || 900;
 
-            stat.innerText = 'Status: Memproses (0 / ' + list.length + ')';
+            stat.innerText = 'Status: Memproses (0 / ' + totalAwal + ')';
             stat.style.color = '#22c55e';
 
-            for (let code of list) {
-                if (!run) break;
-                idx++;
-                stat.innerText = 'Status: Memproses (' + idx + ' / ' + list.length + ')';
+            while (list.length > 0 && run) {
+                let code = list[0];
+                processed++;
+                stat.innerText = 'Status: Memproses (' + processed + ' / ' + totalAwal + ')';
 
                 inputEl.focus();
                 Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(inputEl, code);
@@ -232,8 +195,8 @@
                 else ['keydown', 'keypress', 'keyup'].forEach(e => inputEl.dispatchEvent(new KeyboardEvent(e, { key: 'Enter', keyCode: 13, bubbles: true })));
 
                 await new Promise(r => setTimeout(r, speedDelay));
-                let pageText = document.body.innerText.toLowerCase();
 
+                let pageText = document.body.innerText.toLowerCase();
                 let errorReason = "";
                 if (pageText.includes("sudah di scan") || pageText.includes("sudah scan")) {
                     errorReason = "Sudah di-scan";
@@ -260,14 +223,19 @@
                     if (btnOk) btnOk.click();
                     await new Promise(r => setTimeout(r, 300));
                 }
+
+                // Hapus baris teratas yang baru selesai diproses dari textarea
+                list.shift();
+                txt.value = list.join('\n');
+                updateCount();
             }
 
             let wasRunning = run;
             run = false;
-            stat.innerText = 'Status: Selesai!';
-            stat.style.color = '#38bdf8';
-
-            if (wasRunning) {
+            
+            if (list.length === 0 && wasRunning) {
+                stat.innerText = 'Status: Selesai!';
+                stat.style.color = '#38bdf8';
                 showRunningText();
             }
         };
