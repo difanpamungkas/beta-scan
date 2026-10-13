@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Auto Scanner Panel beta 2.1 by Re (APK Friendly)
+// @name         Auto Scanner Panel beta 2.3 by Re (APK Friendly)
 // @namespace    http://tampermonkey.net/
-// @version      2.1
-// @description  Automated barcode scanning panel with comfortable top running text speed and APK copy log support.
+// @version      2.3
+// @description  Automated barcode scanning panel without close button.
 // @match        https://tsiraw.tsindustri.com/*
 // @grant        none
 // ==/UserScript==
@@ -97,7 +97,6 @@
                 </div>
                 <div style="display:flex; gap:6px; flex-shrink:0; margin-left:8px;">
                     <span id="minBtn" style="cursor:pointer; background:rgba(255,255,255,0.08); color:#a1a1aa; padding:2px 8px; border-radius:6px; font-weight:600; font-size:12px;" title="Minimize">_</span>
-                    <span id="clsBtn" style="cursor:pointer; background:rgba(239,68,68,0.2); color:#ef4444; padding:2px 8px; border-radius:6px; font-weight:600; font-size:12px;" title="Tutup">X</span>
                 </div>
             </div>
 
@@ -152,11 +151,6 @@
             header.style.marginBottom = min ? '0px' : '12px';
             header.style.borderBottom = min ? 'none' : '1px solid rgba(255,255,255,0.08)';
             minBtn.innerText = min ? '+' : '_';
-        };
-
-        p.querySelector('#clsBtn').onclick = function() {
-            run = false;
-            p.remove();
         };
 
         let txt = p.querySelector('#txt');
