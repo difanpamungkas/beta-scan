@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Auto Scanner Panel beta 2.0 by Re (APK Friendly)
+// @name         Auto Scanner Panel beta 2.1 by Re (APK Friendly)
 // @namespace    http://tampermonkey.net/
-// @version      2.0
-// @description  Automated barcode scanning panel with top running text and APK copy log support.
+// @version      2.1
+// @description  Automated barcode scanning panel with comfortable top running text speed and APK copy log support.
 // @match        https://tsiraw.tsindustri.com/*
 // @grant        none
 // ==/UserScript==
@@ -41,7 +41,7 @@
         content.style.cssText = `
             display: inline-block;
             padding-left: 100%;
-            animation: marqueeAnim 6s linear infinite;
+            animation: marqueeAnim 12s linear infinite;
         `;
         content.innerText = '☕ wes kabeh cak,ojo lali kopine @Rey😎   |   ☕ wes kabeh cak,ojo lali kopine @Rey😎';
 
@@ -61,7 +61,7 @@
         banner.onclick = () => banner.remove();
         document.body.appendChild(banner);
 
-        setTimeout(() => { if (banner) banner.remove(); }, 6000);
+        setTimeout(() => { if (banner) banner.remove(); }, 10000);
     }
 
     function initPanel() {
