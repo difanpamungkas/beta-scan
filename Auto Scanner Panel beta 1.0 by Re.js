@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Auto Scanner Panel beta 1.8 by Re
+// @name         Auto Scanner Panel beta 2.0 by Re (APK Friendly)
 // @namespace    http://tampermonkey.net/
-// @version      1.8
-// @description  Automated barcode scanning panel with running text easter egg upon completion.
+// @version      2.0
+// @description  Automated barcode scanning panel with top running text and APK copy log support.
 // @match        https://tsiraw.tsindustri.com/*
 // @grant        none
 // ==/UserScript==
@@ -18,23 +18,22 @@
         banner.id = 'runningTextBanner';
         banner.style.cssText = `
             position: fixed;
-            bottom: 25px;
+            top: 0;
             left: 0;
             width: 100%;
-            background: rgba(9, 9, 11, 0.92);
+            background: rgba(9, 9, 11, 0.95);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             color: #22c55e;
-            padding: 12px 0;
+            padding: 10px 0;
             z-index: 1000000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             overflow: hidden;
             white-space: nowrap;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.6);
-            border-top: 1px solid rgba(34, 197, 94, 0.4);
-            border-bottom: 1px solid rgba(34, 197, 94, 0.4);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            border-bottom: 1px solid rgba(34, 197, 94, 0.5);
             cursor: pointer;
         `;
 
@@ -42,7 +41,7 @@
         content.style.cssText = `
             display: inline-block;
             padding-left: 100%;
-            animation: marqueeAnim 9s linear infinite;
+            animation: marqueeAnim 6s linear infinite;
         `;
         content.innerText = '☕ wes kabeh cak,ojo lali kopine @Rey😎   |   ☕ wes kabeh cak,ojo lali kopine @Rey😎';
 
@@ -62,7 +61,7 @@
         banner.onclick = () => banner.remove();
         document.body.appendChild(banner);
 
-        setTimeout(() => { if (banner) banner.remove(); }, 18000);
+        setTimeout(() => { if (banner) banner.remove(); }, 6000);
     }
 
     function initPanel() {
@@ -132,7 +131,7 @@
 
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <span style="font-weight:600; color:#d4d4d8; font-size:12px;">Daftar Gagal / Ganda:</span>
-                    <button id="expBtn" style="background:none; border:none; color:#38bdf8; font-size:11px; cursor:pointer; text-decoration:underline; padding:0;">Download Log</button>
+                    <button id="copyLogBtn" style="background:none; border:none; color:#38bdf8; font-size:11px; cursor:pointer; text-decoration:underline; padding:0;">Salin Log</button>
                 </div>
 
                 <div id="errLst" style="max-height:85px; overflow-y:auto; background:#09090b; padding:8px; border-radius:8px; font-family:monospace; font-size:11px; color:#f87171; border:1px solid rgba(255,255,255,0.08);"></div>
@@ -180,13 +179,20 @@
             failedLog = [];
         };
 
-        p.querySelector('#expBtn').onclick = function() {
-            if (failedLog.length === 0) return alert('Belum ada data gagal untuk diunduh.');
-            let blob = new Blob([failedLog.join('\n')], { type: 'text/plain;charset=utf-8' });
-            let a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'log_gagal_scan.txt';
-            a.click();
+        p.querySelector('#copyLogBtn').onclick = function() {
+            if (failedLog.length === 0) return alert('Belum ada data gagal untuk disalin.');
+
+            let logText = failedLog.join('\n');
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(logText).then(() => {
+                    alert('Log gagal berhasil disalin ke clipboard!');
+                }).catch(() => {
+                    prompt('Salin log berikut secara manual:', logText);
+                });
+            } else {
+                prompt('Salin log berikut secara manual:', logText);
+            }
         };
 
         p.querySelector('#offBtn').onclick = function() {
