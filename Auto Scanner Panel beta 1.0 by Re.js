@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Auto Scanner Panel beta 2.3 by Re (APK Friendly)
+// @name         Auto Scanner Panel beta 2.4 by Re (APK Friendly)
 // @namespace    http://tampermonkey.net/
-// @version      2.3
-// @description  Automated barcode scanning panel without close button.
+// @version      2.4
+// @description  Automated barcode scanning panel without camera permission.
 // @match        https://tsiraw.tsindustri.com/*
 // @grant        none
 // ==/UserScript==
@@ -93,7 +93,7 @@
             <div id="panelHeader" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; user-select:none; padding-bottom:4px; transition:margin 0.2s ease, border 0.2s ease;">
                 <div style="display:flex; align-items:center; gap:8px; white-space:nowrap; overflow:hidden;">
                     <span style="width:8px; height:8px; background:#22c55e; border-radius:50%; display:inline-block; box-shadow:0 0 8px #22c55e; flex-shrink:0;"></span>
-                    <b style="color:#ffffff; font-size:13px; letter-spacing:0.3px; white-space:nowrap;">beta 1.5 <span style="font-weight:normal; font-size:11px; color:#a1a1aa;">by Re</span></b>
+                    <b style="color:#ffffff; font-size:13px; letter-spacing:0.3px; white-space:nowrap;">beta 2.4 <span style="font-weight:normal; font-size:11px; color:#a1a1aa;">by Re</span></b>
                 </div>
                 <div style="display:flex; gap:6px; flex-shrink:0; margin-left:8px;">
                     <span id="minBtn" style="cursor:pointer; background:rgba(255,255,255,0.08); color:#a1a1aa; padding:2px 8px; border-radius:6px; font-weight:600; font-size:12px;" title="Minimize">_</span>
