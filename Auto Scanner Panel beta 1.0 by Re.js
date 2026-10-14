@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Auto Scanner Panel beta 2.4 by Re (APK Friendly)
+// @name         Auto Scanner Panel beta 2.5 by Re (Fix False Error)
 // @namespace    http://tampermonkey.net/
-// @version      2.4
-// @description  Automated barcode scanning panel with auto-remove line feature.
+// @version      2.5
+// @description  Automated barcode scanning panel with precise error modal detection.
 // @match        https://tsiraw.tsindustri.com/*
 // @grant        none
 // ==/UserScript==
@@ -64,7 +64,7 @@
             <div id="panelHeader" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; user-select:none; padding-bottom:4px;">
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span style="width:8px; height:8px; background:#22c55e; border-radius:50%; display:inline-block; box-shadow:0 0 8px #22c55e;"></span>
-                    <b style="color:#ffffff; font-size:13px;">beta 2.4 <span style="font-weight:normal; font-size:11px; color:#a1a1aa;">by Re</span></b>
+                    <b style="color:#ffffff; font-size:13px;">beta 2.5 <span style="font-weight:normal; font-size:11px; color:#a1a1aa;">by Re</span></b>
                 </div>
                 <span id="minBtn" style="cursor:pointer; background:rgba(255,255,255,0.08); color:#a1a1aa; padding:2px 8px; border-radius:6px; font-weight:600; font-size:12px;">_</span>
             </div>
@@ -196,16 +196,37 @@
 
                 await new Promise(r => setTimeout(r, speedDelay));
 
-                let pageText = document.body.innerText.toLowerCase();
+                // --- PERBAIKAN DETEKSI GAGAL (Hanya cek Pop-Up Modal aktif di luar panel kita) ---
+                let popupText = "";
+                let modalEl = Array.from(document.querySelectorAll('.swal2-popup, .modal, .alert, .swal-overlay, div[role="dialog"]'))
+                                   .filter(el => el.offsetWidth > 0 && el.offsetHeight > 0 && !el.closest('#autoScanPanelContainer'));
+
+                if (modalEl.length > 0) {
+                    popupText = modalEl[modalEl.length - 1].innerText.toLowerCase();
+                } else {
+                    // Cek tombol OK / Close bawaan sistem Tsiraw di luar panel skrip
+                    let btnOk = Array.from(document.querySelectorAll('button')).find(b => {
+                        if (b.closest('#autoScanPanelContainer')) return false;
+                        let t = b.innerText.toLowerCase().trim();
+                        return (t === 'ok' || t === 'close' || t === 'tutup' || t === 'confirm') && b.offsetWidth > 0 && b.offsetHeight > 0;
+                    });
+                    if (btnOk) {
+                        let parentPopup = btnOk.closest('div[class*="modal"], div[class*="popup"], div[class*="swal"], div[class*="alert"]') || btnOk.parentElement;
+                        if (parentPopup) popupText = parentPopup.innerText.toLowerCase();
+                    }
+                }
+
                 let errorReason = "";
-                if (pageText.includes("sudah di scan") || pageText.includes("sudah scan")) {
-                    errorReason = "Sudah di-scan";
-                } else if (pageText.includes("tidak ada di sloc sender") || pageText.includes("tidak ditemukan")) {
-                    errorReason = "Tidak ada di Sloc Sender";
-                } else if (pageText.includes("tidak valid")) {
-                    errorReason = "Tidak valid";
-                } else if (pageText.includes("gagal")) {
-                    errorReason = "Gagal diproses";
+                if (popupText !== "") {
+                    if (popupText.includes("sudah di scan") || popupText.includes("sudah scan")) {
+                        errorReason = "Sudah di-scan";
+                    } else if (popupText.includes("tidak ada di sloc sender") || popupText.includes("tidak ditemukan")) {
+                        errorReason = "Tidak ada di Sloc Sender";
+                    } else if (popupText.includes("tidak valid")) {
+                        errorReason = "Tidak valid";
+                    } else if (popupText.includes("gagal")) {
+                        errorReason = "Gagal diproses";
+                    }
                 }
 
                 if (errorReason !== "") {
@@ -216,7 +237,9 @@
                     fails++;
                     errCnt.innerText = 'Total Gagal: ' + fails;
 
+                    // Tutup pop-up error agar tidak mengganggu scan berikutnya
                     let btnOk = Array.from(document.querySelectorAll('button')).find(b => {
+                        if (b.closest('#autoScanPanelContainer')) return false;
                         let t = b.innerText.toLowerCase().trim();
                         return t === 'ok' || t === 'close' || t === 'tutup' || t === 'confirm';
                     });
