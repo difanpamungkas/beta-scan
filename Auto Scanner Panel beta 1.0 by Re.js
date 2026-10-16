@@ -1,14 +1,34 @@
 // ==UserScript==
-// @name         Auto Scanner Panel beta 2.5 by Re (Fix False Error)
+// @name         Auto Scanner Panel beta 2.7 (Auto Pause & Manual Resume) by Re
 // @namespace    http://tampermonkey.net/
-// @version      2.5
-// @description  Automated barcode scanning panel with precise error modal detection.
+// @version      2.7
+// @description  Automated barcode scanning panel with auto pause on screen off & manual resume button.
 // @match        https://tsiraw.tsindustri.com/*
 // @grant        none
 // ==/UserScript==
 
 (function() {
     'use strict';
+
+    let isPaused = false;
+    let run = false;
+
+    // --- DETEKSI LAYAR MATI / APP BACKGROUND (AUTO PAUSE) ---
+    document.addEventListener('visibilitychange', () => {
+        let stat = document.querySelector('#stat');
+        if (document.hidden && run) {
+            isPaused = true;
+            if (stat) {
+                stat.innerText = 'Status: Terjeda (Layar Mati)';
+                stat.style.color = '#f97316';
+            }
+        } else if (!document.hidden && run && isPaused) {
+            if (stat) {
+                stat.innerText = 'Status: Terjeda (Tekan Lanjutkan)';
+                stat.style.color = '#eab308';
+            }
+        }
+    });
 
     function showRunningText() {
         let oldMsg = document.getElementById('runningTextBanner');
@@ -64,7 +84,7 @@
             <div id="panelHeader" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; user-select:none; padding-bottom:4px;">
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span style="width:8px; height:8px; background:#22c55e; border-radius:50%; display:inline-block; box-shadow:0 0 8px #22c55e;"></span>
-                    <b style="color:#ffffff; font-size:13px;">beta 2.5 <span style="font-weight:normal; font-size:11px; color:#a1a1aa;">by Re</span></b>
+                    <b style="color:#ffffff; font-size:13px;">beta 2.7 <span style="font-weight:normal; font-size:11px; color:#a1a1aa;">by Re</span></b>
                 </div>
                 <span id="minBtn" style="cursor:pointer; background:rgba(255,255,255,0.08); color:#a1a1aa; padding:2px 8px; border-radius:6px; font-weight:600; font-size:12px;">_</span>
             </div>
@@ -86,10 +106,11 @@
                     </select>
                 </div>
 
-                <div style="display:flex; gap:6px; margin-bottom:10px;">
-                    <button id="clrBtn" style="flex:1; background:rgba(255,255,255,0.06); color:#d4d4d8; border:1px solid rgba(255,255,255,0.1); padding:7px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;">Clear</button>
-                    <button id="onBtn" style="flex:2; background:linear-gradient(135deg, #16a34a, #22c55e); color:#fff; border:none; padding:7px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;">START ON</button>
-                    <button id="offBtn" style="flex:1; background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); padding:7px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;">STOP</button>
+                <div style="display:flex; gap:4px; margin-bottom:10px;">
+                    <button id="clrBtn" style="flex:1; background:rgba(255,255,255,0.06); color:#d4d4d8; border:1px solid rgba(255,255,255,0.1); padding:7px 2px; border-radius:6px; font-weight:600; cursor:pointer; font-size:11px;">Clear</button>
+                    <button id="onBtn" style="flex:1.4; background:linear-gradient(135deg, #16a34a, #22c55e); color:#fff; border:none; padding:7px 2px; border-radius:6px; font-weight:600; cursor:pointer; font-size:11px;">START</button>
+                    <button id="resumeBtn" style="flex:1.6; background:linear-gradient(135deg, #2563eb, #3b82f6); color:#fff; border:none; padding:7px 2px; border-radius:6px; font-weight:600; cursor:pointer; font-size:11px;">Lanjutkan</button>
+                    <button id="offBtn" style="flex:1; background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); padding:7px 2px; border-radius:6px; font-weight:600; cursor:pointer; font-size:11px;">STOP</button>
                 </div>
 
                 <div style="background:rgba(0,0,0,0.3); padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.05); margin-bottom:10px;">
@@ -107,7 +128,7 @@
         `;
         document.body.appendChild(p);
 
-        let run = false, min = false;
+        let min = false;
         let body = p.querySelector('#bodyPanel');
         let minBtn = p.querySelector('#minBtn');
         let header = p.querySelector('#panelHeader');
@@ -157,8 +178,20 @@
         p.querySelector('#offBtn').onclick = function() {
             if (run) {
                 run = false;
+                isPaused = false;
                 p.querySelector('#stat').innerText = 'Status: Dihentikan (STOP)';
                 p.querySelector('#stat').style.color = '#ef4444';
+            }
+        };
+
+        p.querySelector('#resumeBtn').onclick = function() {
+            if (run && isPaused) {
+                isPaused = false;
+                let stat = p.querySelector('#stat');
+                if (stat) {
+                    stat.innerText = 'Status: Melanjutkan Scan...';
+                    stat.style.color = '#22c55e';
+                }
             }
         };
 
@@ -171,6 +204,8 @@
             if (!inputEl) return alert('Input barcode tidak ditemukan di halaman!');
 
             run = true;
+            isPaused = false;
+
             let stat = p.querySelector('#stat');
             let fails = 0, totalAwal = list.length, processed = 0;
             let speedDelay = parseInt(document.getElementById('speedSel').value) || 900;
@@ -179,6 +214,12 @@
             stat.style.color = '#22c55e';
 
             while (list.length > 0 && run) {
+                // TAHAN PROSES SAAT TERJEDA/LAYAR MATI SAMPAI TOMBOL "LANJUTKAN" DITEKAN
+                while (isPaused && run) {
+                    await new Promise(r => setTimeout(r, 400));
+                }
+                if (!run) break;
+
                 let code = list[0];
                 processed++;
                 stat.innerText = 'Status: Memproses (' + processed + ' / ' + totalAwal + ')';
@@ -196,7 +237,6 @@
 
                 await new Promise(r => setTimeout(r, speedDelay));
 
-                // --- PERBAIKAN DETEKSI GAGAL (Hanya cek Pop-Up Modal aktif di luar panel kita) ---
                 let popupText = "";
                 let modalEl = Array.from(document.querySelectorAll('.swal2-popup, .modal, .alert, .swal-overlay, div[role="dialog"]'))
                                    .filter(el => el.offsetWidth > 0 && el.offsetHeight > 0 && !el.closest('#autoScanPanelContainer'));
@@ -204,7 +244,6 @@
                 if (modalEl.length > 0) {
                     popupText = modalEl[modalEl.length - 1].innerText.toLowerCase();
                 } else {
-                    // Cek tombol OK / Close bawaan sistem Tsiraw di luar panel skrip
                     let btnOk = Array.from(document.querySelectorAll('button')).find(b => {
                         if (b.closest('#autoScanPanelContainer')) return false;
                         let t = b.innerText.toLowerCase().trim();
@@ -237,7 +276,6 @@
                     fails++;
                     errCnt.innerText = 'Total Gagal: ' + fails;
 
-                    // Tutup pop-up error agar tidak mengganggu scan berikutnya
                     let btnOk = Array.from(document.querySelectorAll('button')).find(b => {
                         if (b.closest('#autoScanPanelContainer')) return false;
                         let t = b.innerText.toLowerCase().trim();
@@ -247,7 +285,6 @@
                     await new Promise(r => setTimeout(r, 300));
                 }
 
-                // Hapus baris teratas yang baru selesai diproses dari textarea
                 list.shift();
                 txt.value = list.join('\n');
                 updateCount();
@@ -255,7 +292,7 @@
 
             let wasRunning = run;
             run = false;
-            
+
             if (list.length === 0 && wasRunning) {
                 stat.innerText = 'Status: Selesai!';
                 stat.style.color = '#38bdf8';
